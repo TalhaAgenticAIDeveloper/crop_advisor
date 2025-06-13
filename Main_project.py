@@ -1,160 +1,10 @@
-# from agents import Farmer_Agents
-# from tasks import Farmer_Tasks
-# from crewai import Crew, Process, LLM
-# import streamlit as st
-# from io import StringIO
-# import google.generativeai as genai
-# from dotenv import load_dotenv
-# import os
-# import random
-# import requests
-
-
-# load_dotenv()
-# # Access environment variables
-# gemini_api_key = os.getenv("GEMINI_API_KEY")
-# openweather_api_key = os.getenv("OPENWEATHER_API_KEY")
-# CITY = "Rawalpindi"
-
-# # Configure the Gemini API client with your API key
-# genai.configure(api_key=gemini_api_key)
-
-# # selecting model
-# model = genai.GenerativeModel('gemini-2.0-flash-exp')
-
-
-# # get soil data from this function
-# def get_soil_data():
-#     return {
-#         "moisture": round(random.uniform(15, 35), 2),
-#         "temperature": round(random.uniform(20, 35), 2),
-#         "pH": round(random.uniform(5.5, 7.5), 2),
-#         "nitrogen": round(random.uniform(50, 150), 2),
-#         "phosphorus": round(random.uniform(30, 90), 2),
-#         "potassium": round(random.uniform(100, 250), 2),
-#     }
-
-
-# # Get weather data from this function
-# def get_weather_data(city: str, api_key: str):
-#     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-#     response = requests.get(url)
-    
-#     if response.status_code != 200:
-#         raise Exception("Weather API Error:", response.text)
-    
-#     data = response.json()
-#     return {
-#         "temperature": data["main"]["temp"],
-#         "humidity": data["main"]["humidity"],
-#         "description": data["weather"][0]["description"],
-#         "wind_speed": data["wind"]["speed"]
-#     }
-
-
-# ############################################################################################
-# # Creating Agents 
-# ############################################################################################
-
-# agents = Farmer_Agents()
-
-# # Importing Agents
-# soil_analysis_agent = agents.soil_analysis_agent()
-# weather_analysis_agent = agents.weather_analysis_agent()
-# crop_selection_agent = agents.crop_selection_agent()
-# advisory_agent = agents.advisory_agent()
-
-
-
-
-
-
-# ############################################################################################
-# # Creating Tasks
-# ############################################################################################
-
-# tasks = Farmer_Tasks()
-
-# # Assigning Tasks
-# Soil_Analysis_Task = tasks.Soil_Analysis_Task(
-#     agent = soil_analysis_agent,
-#     soil_data = soil_data,
-    
-    
-# )
-
-# Weather_Analysis_Task = tasks.Weather_Analysis_Task(
-#     agent = weather_analysis_agent,
-#     weather_data = weather_data,
-#     context = [Soil_Analysis_Task],
-# )
-
-# Crop_Selection_Task = tasks.Crop_Selection_Task(
-#     agent = crop_selection_agent,
-#     context = [Soil_Analysis_Task, Weather_Analysis_Task],
-# )
-
-# Advisory_Message_Task = tasks.Advisory_Message_Task(
-#     agent = advisory_agent,
-#     context = [Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task],
-# )
-
-
-
-
-
-# ############################################################################################
-# # Creating Crew
-# ############################################################################################
-
-# crew = Crew(
-#     agents=[soil_analysis_agent, weather_analysis_agent, crop_selection_agent, advisory_agent],
-#     tasks=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task, Advisory_Message_Task],
-#     # verbose=True,
-# )
-
-
-
-# soil_data = get_soil_data()
-# weather_data = get_weather_data(CITY, openweather_api_key)
-
-
-# results = crew.kickoff()
-# output_text = results.raw 
-# print(output_text)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import streamlit as st
 from agents import Farmer_Agents
 from tasks import Farmer_Tasks
 from crewai import Crew
 from dotenv import load_dotenv
-import speech_recognition as sr
 import asyncio
 import edge_tts
-import pygame
 import google.generativeai as genai
 import os
 import random
@@ -170,15 +20,8 @@ genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
 
-voices = ["en-US-JennyNeural", "en-GB-RyanNeural", "zh-CN-XiaoxiaoNeural"]
-# VOICE = voices[0]  # Default voice selection
-# VOICE = "ur-PK-AsadNeural"
 VOICE = "en-IN-PrabhatNeural"
 OUTPUT_FILE = "test_speed.mp3"
-
-recognizer = sr.Recognizer()
-
-
 
 
 # Text to Speech
@@ -186,18 +29,6 @@ async def amain(TEXT):
     """Generate speech from text and play it."""
     communicator = edge_tts.Communicate(TEXT, VOICE)
     await communicator.save(OUTPUT_FILE)
-
-    # pygame.mixer.init()
-    # pygame.mixer.music.load(OUTPUT_FILE)
-    # pygame.mixer.music.play()
-
-    # while pygame.mixer.music.get_busy():
-    #     pygame.time.Clock().tick(10)
-    
-    # pygame.mixer.quit()
-    # os.remove(OUTPUT_FILE)
-
-
 
 
 
