@@ -1,18 +1,16 @@
+import streamlit as st
 import google.generativeai as genai
-from agents import Farmer_Agents
 import speech_recognition as sr
+from agents import Farmer_Agents
 from tasks import Farmer_Tasks
 from dotenv import load_dotenv
 from crewai import Crew
-import streamlit as st
 import edge_tts
 import requests
 import asyncio
 import random
-import pygame
 import os
-
-
+import pygame
 
 # Load environment variables
 load_dotenv()
@@ -23,20 +21,25 @@ openweather_api_key = os.getenv("OPENWEATHER_API_KEY")
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
-
 VOICE = "en-IN-PrabhatNeural"
-OUTPUT_FILE = "test_speed.mp3"
-
+OUTPUT_FILE = "response.mp3"
 
 # Text to Speech
 async def amain(TEXT):
-    """Generate speech from text and play it."""
     communicator = edge_tts.Communicate(TEXT, VOICE)
     await communicator.save(OUTPUT_FILE)
 
+    pygame.mixer.init()
+    pygame.mixer.music.load(OUTPUT_FILE)
+    pygame.mixer.music.play()
 
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+    
+    pygame.mixer.quit()
+    os.remove(OUTPUT_FILE)
 
-# Random Soil data generator
+# Soil Data
 def get_soil_data():
     return {
         "moisture": round(random.uniform(15, 35), 2),
@@ -47,7 +50,7 @@ def get_soil_data():
         "potassium": round(random.uniform(100, 250), 2),
     }
 
-# Weather data function (real)
+# Weather Data
 def get_weather_data(city: str, api_key: str):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     response = requests.get(url)
@@ -63,52 +66,121 @@ def get_weather_data(city: str, api_key: str):
         "wind_speed": data["wind"]["speed"]
     }
 
-# Streamlit UI
-st.set_page_config(page_title="Smart Farming Advisor", layout="centered")
-st.title("🌾 Smart Farming Advisor using AI Agents")
+# Speech to Text
+def listen_speech():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as mic:
+        recognizer.adjust_for_ambient_noise(mic, duration=1)
+        st.write("Listening... 🎤")
+        audio = recognizer.listen(mic)
 
-city = st.text_input("Enter your city (for weather data):", "Rawalpindi")
+        try:
+            text = recognizer.recognize_google(audio)
+            return text
+        except sr.UnknownValueError:
+            return "Sorry, I couldn't understand that."
 
-if st.button("Get Advisory"):
-    with st.spinner("Collecting data and analyzing..."):
-        # Collect data
-        soil_data = get_soil_data()
-        weather_data = get_weather_data(city, openweather_api_key)
 
-        # Show input data
-        st.subheader("🔬 Soil Data")
-        st.json(soil_data)
+def save_text_to_file(text, filename="data.txt"):
+                with open(filename, "w", encoding="utf-8") as f:
+                    f.write(text)
 
-        st.subheader("☁️ Weather Data")
-        st.json(weather_data)
 
-        # Create agents
-        agents = Farmer_Agents()
-        soil_analysis_agent = agents.soil_analysis_agent()
-        weather_analysis_agent = agents.weather_analysis_agent()
-        crop_selection_agent = agents.crop_selection_agent()
-        advisory_agent = agents.advisory_agent()
 
-        # Create tasks
-        tasks = Farmer_Tasks()
-        Soil_Analysis_Task = tasks.Soil_Analysis_Task(agent=soil_analysis_agent, soil_sensor_data=soil_data)
-        Weather_Analysis_Task = tasks.Weather_Analysis_Task(agent=weather_analysis_agent, weather_data=weather_data, context=[Soil_Analysis_Task])
-        Crop_Selection_Task = tasks.Crop_Selection_Task(agent=crop_selection_agent, soil_analysis_output = Soil_Analysis_Task, weather_analysis_output =  Weather_Analysis_Task, context=[Soil_Analysis_Task, Weather_Analysis_Task])
-        Advisory_Message_Task = tasks.Advisory_Message_Task(agent=advisory_agent, crop_recommendations = Crop_Selection_Task,  context=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task])
+def load_text_from_file(filename="data.txt"):
+    with open(filename, "r", encoding="utf-8") as f:
+        return f.read()
 
-        # Run Crew
-        crew = Crew(
-            agents=[soil_analysis_agent, weather_analysis_agent, crop_selection_agent, advisory_agent],
-            tasks=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task, Advisory_Message_Task],
-        )
 
-        results = crew.kickoff()
 
-        st.success("✅ Advisory Generated!")
-        st.subheader("📢 Final Advisory (Play Audio)")
-        # st.markdown(f"```\n{results.raw}\n```")
+# Streamlit App Config
+st.set_page_config(page_title="AI Farming Assistant", layout="centered")
+st.sidebar.title("🧭 Select Tool")
+app = st.sidebar.selectbox("Choose an assistant", ["🌾 Smart Farming Advisor", "🎤 AI Crop Assistant"])
 
-        ai_response = results.raw
-        # **Text-to-Speech Response**
-        asyncio.run(amain(ai_response))
-        st.audio(OUTPUT_FILE, format="audio/mp3")
+# ============== Page 1 ==============
+if app == "🌾 Smart Farming Advisor":
+    st.title("🌾 Smart Farming Advisor using AI Agents")
+    city = st.text_input("Enter your city (for weather data):", "Rawalpindi")
+
+    if st.button("Get Advisory"):
+        with st.spinner("Collecting data and analyzing..."):
+            soil_data = get_soil_data()
+            weather_data = get_weather_data(city, openweather_api_key)
+
+            st.subheader("🔬 Soil Data")
+            st.json(soil_data)
+
+            st.subheader("☁️ Weather Data")
+            st.json(weather_data)
+
+            agents = Farmer_Agents()
+            soil_analysis_agent = agents.soil_analysis_agent()
+            weather_analysis_agent = agents.weather_analysis_agent()
+            crop_selection_agent = agents.crop_selection_agent()
+            advisory_agent = agents.advisory_agent()
+
+            tasks = Farmer_Tasks()
+            Soil_Analysis_Task = tasks.Soil_Analysis_Task(agent=soil_analysis_agent, soil_sensor_data=soil_data)
+            Weather_Analysis_Task = tasks.Weather_Analysis_Task(agent=weather_analysis_agent, weather_data=weather_data, context=[Soil_Analysis_Task])
+            Crop_Selection_Task = tasks.Crop_Selection_Task(agent=crop_selection_agent, soil_analysis_output = Soil_Analysis_Task, weather_analysis_output =  Weather_Analysis_Task, context=[Soil_Analysis_Task, Weather_Analysis_Task])
+            Advisory_Message_Task = tasks.Advisory_Message_Task(agent=advisory_agent, crop_recommendations = Crop_Selection_Task,  context=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task])
+            
+
+            crew = Crew(
+                agents=[soil_analysis_agent, weather_analysis_agent, crop_selection_agent, advisory_agent],
+                tasks=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task, Advisory_Message_Task],
+            )
+
+            results = crew.kickoff()
+
+            st.success("✅ Advisory Generated!")
+            st.subheader("📢 Final Advisory")
+            ai_response = results.raw
+            save_text_to_file(ai_response)
+            st.text(ai_response)
+            asyncio.run(amain(ai_response))
+            
+
+# ============== Page 2 ==============
+elif app == "🎤 AI Crop Assistant":
+    st.title("🎤 AI Crop Assistant")
+    # suggestedCrops = ["wheat", "maize", "sunflower"]
+    soil_data = get_soil_data()
+
+    if st.button("Start Voice Advisory"):
+        while True:
+            user_question = listen_speech()
+
+            if user_question.lower() == "exit":
+                st.write("Chat ended. Restart to begin again.")
+                break
+            
+
+            answer_passed = load_text_from_file()
+            
+
+            agents = Farmer_Agents()
+            urdu_agri_advisor_agent = agents.urdu_agri_advisor_agent()
+
+            tasks = Farmer_Tasks()
+            Urdu_Agri_Advisor_Task = tasks.Urdu_Agri_Advisor_Task(
+                agent=urdu_agri_advisor_agent,
+                soil_data=soil_data,
+                suggestedCrops=answer_passed,
+                user_question=user_question
+            )
+
+            crew = Crew(
+                agents=[urdu_agri_advisor_agent],
+                tasks=[Urdu_Agri_Advisor_Task],
+            )
+
+            results = crew.kickoff()
+
+            ai_response = results.raw
+            st.success("✅ Advisory Generated!")
+            # st.write(ai_response)
+            st.write("AI speaking")
+            # st.write(answer_passed)
+            asyncio.run(amain(ai_response))

@@ -123,3 +123,33 @@ class Farmer_Agents:
             # verbose=True,
             # allow_delegation=False
         )
+
+
+
+
+    ##################################################################################################
+    # Agent 5
+    ##################################################################################################
+    def urdu_agri_advisor_agent(self):
+        return Agent(
+            role="Urdu Agricultural Advisor",
+
+            goal="""
+                Advise Pakistani farmers in Urdu based on soil data, recommended crops, and the farmer’s question.
+                Key tasks:
+                1. Evaluate soil suitability for requested crops
+                2. Compare requested crops with already recommended options
+                3. Answer soil-related queries briefly and accurately in Urdu
+                4. Decline irrelevant questions politely
+            """,
+
+            backstory="""
+                An experienced agricultural advisor fluent in Urdu, specializing in helping Pakistani farmers make informed
+                crop decisions based on local soil conditions. Trained in agronomy, soil science, and local crop cycles. 
+                Combines expert knowledge with cultural and linguistic relevance to assist smallholder farmers effectively.
+            """,
+
+            llm=model,
+            # verbose=True,
+            # allow_delegation=False
+        )

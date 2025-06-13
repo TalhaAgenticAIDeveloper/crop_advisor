@@ -7,23 +7,21 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 import random
+from agents import Farmer_Agents
+from tasks import Farmer_Tasks
+from crewai import Crew
 
 
-# Set API KEY
-# Load environment variables
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-# Configure Gemini
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
-# VOICE = voices[0]  # Default voice selection
 VOICE = "en-IN-PrabhatNeural"
 OUTPUT_FILE = "question.mp3"
 
 st.title("🎤 AI Crop Assistant")
-
 
 recognizer = sr.Recognizer()
 
@@ -39,47 +37,10 @@ def get_soil_data():
     }
 
 
-soilData = get_soil_data()
+soil_data = get_soil_data()
+suggestedCrops = ["wheat", "maize", "sunflower"];
 
-
-
-suggestedCrops = ["wheat", "maize", "sunflower"];   #LLM ne yeh suggest kiye
-
-
-
-def create_prompt(user_input):
-    prompt = f"""
-                const prompt = `
-            Tum ek agricultural assistant ho jo Pakistani kisano ko unki zameen ke mutabiq fasslon ka mashwara deta hai.
-
-            Neeche teen cheezen di gayi hain:
-            1. Mitti ki maloomat
-            2. Tumhari taraf se pehle se recommend ki gayi 3 behtareen fasslein
-            3. Kisan ka sawal
-
-            Agar kisan kisi aur fassal ka poochta hai to tum yeh batao:
-            - Kya woh fassal zameen ke liye theek hai?
-            - Kya woh pehle se suggest ki gayi fasslon se behtar hai ya nahi?
-
-            Agar kisan sirf soil ke baare mein poochta hai to sirf soil ka jawab do.
-
-            Agar sawal soil ya fasslon se mutaliq nahi ho to politely inkaar karo: "Yeh sawal meri expertise se bahar hai."
-
-            Koi emoji ya symbol use na karo. Jawab Urdu mein chhota, clear aur to-the-point ho.
-
-            **Mitti ki maloomat:**
-            ${soilData}
-
-            **Tumhari taraf se recommend ki gayi fasslein:**
-            ${suggestedCrops}
-
-            **Kisan ka sawal:**  
-            "${user_input}"
-            `;
-
-    """
-    return prompt
-
+# It converts AI response from Text to Speech
 async def amain(TEXT):
     """Generate speech from text and play it."""
     communicator = edge_tts.Communicate(TEXT, VOICE)
@@ -95,6 +56,7 @@ async def amain(TEXT):
     pygame.mixer.quit()
     os.remove(OUTPUT_FILE)
 
+# It converts User's Audio into Text
 def listen_speech():
     """Capture user's speech input and return the text."""
     with sr.Microphone() as mic:
@@ -109,30 +71,41 @@ def listen_speech():
             return "Sorry, I couldn't understand that."
 
 
+soil_data = get_soil_data()
 
-
-
-# **Chatbot Loop** - Runs each time user clicks "Start Chat"
-if st.button("Start Chat 🎙️"):
+if st.button("Get Advisory"):
     while True:
         # **User Speech Input**
-        user_input = listen_speech()
+        user_question = listen_speech()
 
-        if user_input.lower() == "exit":
+        if user_question.lower() == "exit":
             st.write("Chat ended. Restart to begin again.")
             break
 
-        st.session_state.conversation_history.append(f"User: {user_input}")
 
-        # **AI Response**
-        prompt = create_prompt(user_input)
-        response = model.generate_content(prompt)
-        ai_response = response.text if response else "Sorry, I couldn't process that."
+        # Create agents
+        agents = Farmer_Agents()
+        urdu_agri_advisor_agent = agents.urdu_agri_advisor_agent()
 
-        # **Display AI Response**
-        st.write("**AI Crop Avisor speaking**")
-        
+        # Create tasks
+        tasks = Farmer_Tasks()
+        Urdu_Agri_Advisor_Task = tasks.Urdu_Agri_Advisor_Task(agent=urdu_agri_advisor_agent, soil_data=soil_data, suggestedCrops = suggestedCrops, user_question = user_question)
+
+        # Run Crew
+        crew = Crew(
+            agents=[urdu_agri_advisor_agent],
+            tasks=[Urdu_Agri_Advisor_Task],
+        )
+
+        results = crew.kickoff()
+
+        st.success("✅ Advisory Generated!")
+
+        ai_response = results.raw
+
+        st.write(ai_response)
         # **Text-to-Speech Response**
         asyncio.run(amain(ai_response))
-        st.write(ai_response)
-        # Automatically loop back and allow the user to speak again
+
+
+

@@ -151,3 +151,37 @@ class Farmer_Tasks:
                     In teenon mein se aap kisi bhi fasal ka intekhab kar saktay hain lekin agar aap jaldi munafa chahte hain to palak ya bhindi behtareen rahein gi. InshaAllah achi paidawaar aur faida hoga
                     """
         )
+
+
+    ##############################################################################################################
+        # Task 5
+    ##############################################################################################################
+    def Urdu_Agri_Advisor_Task(self, agent, soil_data, suggestedCrops, user_question):
+        return Task(
+            description=f"""Assist a Pakistani farmer by answering their crop-related question based on soil data.
+
+            The agent will:
+            - Use the provided soil information to assess suitability of the crop the farmer asks about.
+            - Compare it with already suggested crops and determine whether the new crop is better.
+            - If the question is only about soil, respond only with relevant soil details.
+            - If the question is unrelated to soil or crops, respond politely in Roman Urdu, stating it's out of expertise.
+
+            Parameters:
+            - Soil Data: {soil_data}
+            - Suggested Crops: {suggestedCrops}
+            - Farmer’s Question: "{user_question}"
+
+            The agent will respond in concise, polite Roman Urdu without using emojis or symbols.
+            """,
+
+            tools=[],
+            agent=agent,
+
+            expected_output="""
+                A short, clear, Urdu-language response:
+                - If crop is suitable: state why and compare with suggested crops.
+                - If crop is unsuitable: give reason and optionally suggest alternatives.
+                - If question is soil-related only: respond with soil information.
+                - If question is irrelevant: politely decline in Urdu.
+            """
+        )
