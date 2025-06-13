@@ -151,6 +151,10 @@ from agents import Farmer_Agents
 from tasks import Farmer_Tasks
 from crewai import Crew
 from dotenv import load_dotenv
+import speech_recognition as sr
+import asyncio
+import edge_tts
+import pygame
 import google.generativeai as genai
 import os
 import random
@@ -165,7 +169,39 @@ openweather_api_key = os.getenv("OPENWEATHER_API_KEY")
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
-# Soil data function (simulated)
+
+voices = ["en-US-JennyNeural", "en-GB-RyanNeural", "zh-CN-XiaoxiaoNeural"]
+# VOICE = voices[0]  # Default voice selection
+# VOICE = "ur-PK-AsadNeural"
+VOICE = "en-IN-PrabhatNeural"
+OUTPUT_FILE = "test_speed.mp3"
+
+recognizer = sr.Recognizer()
+
+
+
+
+# Text to Speech
+async def amain(TEXT):
+    """Generate speech from text and play it."""
+    communicator = edge_tts.Communicate(TEXT, VOICE)
+    await communicator.save(OUTPUT_FILE)
+
+    # pygame.mixer.init()
+    # pygame.mixer.music.load(OUTPUT_FILE)
+    # pygame.mixer.music.play()
+
+    # while pygame.mixer.music.get_busy():
+    #     pygame.time.Clock().tick(10)
+    
+    # pygame.mixer.quit()
+    # os.remove(OUTPUT_FILE)
+
+
+
+
+
+# Random Soil data generator
 def get_soil_data():
     return {
         "moisture": round(random.uniform(15, 35), 2),
@@ -234,5 +270,10 @@ if st.button("Get Advisory"):
         results = crew.kickoff()
 
         st.success("✅ Advisory Generated!")
-        st.subheader("📢 Final Advisory (Roman Urdu):")
-        st.markdown(f"```\n{results.raw}\n```")
+        st.subheader("📢 Final Advisory (Play Audio)")
+        # st.markdown(f"```\n{results.raw}\n```")
+
+        ai_response = results.raw
+        # **Text-to-Speech Response**
+        asyncio.run(amain(ai_response))
+        st.audio(OUTPUT_FILE, format="audio/mp3")

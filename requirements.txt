@@ -4,3 +4,7 @@ python-dotenv
 crewai
 crewai-tools
 streamlit
+SpeechRecognition
+edge-tts
+pygame
+phidata

@@ -1,5 +1,5 @@
 from crewai import  Task
-from crewai_tools import SerperDevTool
+# from crewai_tools import SerperDevTool
 from dotenv import load_dotenv
 import os 
 load_dotenv()
@@ -7,7 +7,7 @@ load_dotenv()
 
 os.getenv("GEMINI_API_KEY")
 
-research_tool = SerperDevTool()
+# research_tool = SerperDevTool()
 
 
 class Farmer_Tasks:
@@ -112,48 +112,6 @@ class Farmer_Tasks:
     ##############################################################################################################
         # Task 4
     ##############################################################################################################
-        # def Advisory_Message_Task(self, agent, crop_recommendations,context, language="Roman Urdu"):
-        #     return Task(
-        #         description=f"""Convert crop recommendations into a clear and friendly advisory message in {language} 
-        #         for local farmers.
-
-        #         The agent will:
-        #         - Use spoken-style Roman Urdu
-        #         - Write structured output:
-        #             1. Crop name
-        #             2. Kitne din mein tayar ho gi
-        #             3. Roz kitni dafa pani dena hai
-        #             4. Har watering ka exact time (e.g., subha 7 baje, shaam 6 baje)
-
-        #         Message should feel like direct advice from an experienced farmer, in simple, warm tone.
-
-        #         Parameters:
-        #         - Crop Recommendations: {crop_recommendations}
-        #         - Language: {language}
-
-        #         Output:
-        #         Structured Roman Urdu message for farmers with each crop and its details.
-        #         """
-        #     ,   context = context,
-        #         tools=[],
-        #         agent=agent,
-        #         expected_output="""
-        #                 Pehli crop: Tamatar
-        #                 • 75 din mein tayar ho ga
-        #                 • Roz 2 dafa pani den: subha 7 baje, shaam 6 baje
-
-        #                 Dusri crop: Bhindi
-        #                 • 60 din mein tayar ho gi
-        #                 • Roz 2 dafa pani: subha 8 baje, shaam 5:30 baje
-
-        #                 Teesri crop: Palak
-        #                 • 45 din mein ready ho gi
-        #                 • Roz sirf 1 dafa pani: subha 8 baje
-
-        #                 Yeh crops aap ke ilaqay ke liye behtareen hain. InshaAllah achi paidawaar aur munafa hoga.
-        #             """
-        #     )
-
     def Advisory_Message_Task(self, agent, crop_recommendations, context, language="Roman Urdu"):
         return Task(
             description=f"""Convert crop recommendations into a clear and friendly advisory message in {language} 
