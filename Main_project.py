@@ -1,14 +1,18 @@
-import streamlit as st
-from agents import Farmer_Agents
-from tasks import Farmer_Tasks
-from crewai import Crew
-from dotenv import load_dotenv
-import asyncio
-import edge_tts
 import google.generativeai as genai
-import os
-import random
+from agents import Farmer_Agents
+import speech_recognition as sr
+from tasks import Farmer_Tasks
+from dotenv import load_dotenv
+from crewai import Crew
+import streamlit as st
+import edge_tts
 import requests
+import asyncio
+import random
+import pygame
+import os
+
+
 
 # Load environment variables
 load_dotenv()

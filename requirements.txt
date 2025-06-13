@@ -8,3 +8,4 @@ SpeechRecognition
 edge-tts
 pygame
 phidata
+pyaudio
