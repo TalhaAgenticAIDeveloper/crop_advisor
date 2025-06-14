@@ -46,7 +46,7 @@ class Farmer_Tasks:
     ##############################################################################################################
         # Task 2
     ##############################################################################################################
-    def Weather_Analysis_Task(self, agent, weather_data,context):
+    def Weather_Analysis_Task(self, agent, weather_data):
         return Task(
             description=f"""Analyze the current weather conditions to assess their suitability for agricultural activity.
 
@@ -62,7 +62,6 @@ class Farmer_Tasks:
 
             The agent will provide an environmental assessment useful for crop planning.
             """,
-            context = context,
             tools=[],
             agent=agent,
             expected_output="""
@@ -183,5 +182,44 @@ class Farmer_Tasks:
                 - If crop is unsuitable: give reason and optionally suggest alternatives.
                 - If question is soil-related only: respond with soil information.
                 - If question is irrelevant: politely decline in Urdu.
+            """
+        )
+
+
+
+    ##############################################################################################################
+        # Task 6
+    ##############################################################################################################
+    def Irrigation_Advisor_Task(self, agent, soil_data, weather_data, crop_name):
+        return Task(
+            description=f"""Aik Pakistani kisan ko guide karein ke usay apni fasal ("{crop_name}") ko paani dena chahiye ya nahi, soil aur weather data ke analysis ki buniyad par.
+
+            Agent ka kaam:
+            - Soil moisture, temperature, aur weather conditions ka tajziya karein
+            - Faslon ki zarurat ko samjhein (crop_name ki khasiyat ke mutabiq)
+            - Agar paani dena zaroori ho:
+                - **Detail se bataayein ke kyun**
+                - Moisture level ya high temperature ki buniyad par reasoning dein
+                - Kitne ghanto ke andar dena chahiye, yeh bhi mention karein
+            - Agar paani dena zaroori nahi:
+                - **Detail se waja batayein**
+                - Moisture kaafi hai ya mausam thanda hai to explain karein
+                - Bataayein ke kitne ghanto tak paani ki zaroorat nahi padegi
+
+            Parameters:
+            - Soil Data: {soil_data}
+            - Weather Data: {weather_data}
+            - Crop Name: "{crop_name}"
+
+            Jawab sirf Roman Urdu mein ho — understandable, friendly, aur kisan ki zaban mein. Koi emoji ya complex terms use na karein.
+            """,
+
+            tools=[],
+            agent=agent,
+
+            expected_output="""
+                Roman Urdu mein tafseelat ke sath jawab:
+                - Agar paani zaroori hai: "Aap ne tinda lagaya hai. Is waqt zameen ka moisture 18% hai jo kam hai, aur temperature bhi 32°C hai. Ye sabzi ko stress de sakta hai. Agle 2 ghanto ke andar paani de dein."
+                - Agar paani zaroori nahi: "Aap ne palak lagayi hai. Zameen ka moisture 30% hai aur mausam thanda hai. Agle 10 ghanto tak paani ki koi zaroorat nahi."
             """
         )

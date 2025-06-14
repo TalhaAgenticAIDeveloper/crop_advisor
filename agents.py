@@ -32,8 +32,7 @@ class Farmer_Agents:
             """,
 
             llm=model,
-            # verbose=True,  # Uncomment if you want logs
-            # allow_delegation=False,  # This agent works independently
+
         )
     
 
@@ -60,8 +59,7 @@ class Farmer_Agents:
             """,
 
             llm=model,
-            # verbose=True,  # Optional for debugging
-            # allow_delegation=False  # This agent works independently
+
         )
 
 
@@ -90,8 +88,7 @@ class Farmer_Agents:
             """,
 
             llm=model,
-            # verbose=True,  # Enable if you want logs
-            # allow_delegation=False  # This agent makes final decisions
+
         )
 
 
@@ -120,8 +117,7 @@ class Farmer_Agents:
             """,
 
             llm=model,
-            # verbose=True,
-            # allow_delegation=False
+
         )
 
 
@@ -150,6 +146,34 @@ class Farmer_Agents:
             """,
 
             llm=model,
-            # verbose=True,
-            # allow_delegation=False
+
+        )
+    
+
+    ##################################################################################################
+    # Agent 6
+    ##################################################################################################
+    def irrigation_advisor_agent(self):
+        return Agent(
+            role="Roman Urdu Irrigation Advisor",
+
+            goal="""
+                Kisan se li gayi sabzi (crop) ke naam, mitti (soil) ke data aur mausam (weather) ki maloomat ko dekh kar
+                yeh faisla karna ke aaj paani dena zaroori hai ya nahi.
+
+                Key tasks:
+                1. Moisture, temperature aur pH ka tajziya (analysis) karna
+                2. Mausam ke factors jaise ke garmi aur humidity ko samajhna
+                3. Sabzi ke paani ki zaruratein samajh kar mashwara dena
+                4. Saaf, mukhtasir aur Roman Urdu mein jawab dena
+            """,
+
+            backstory="""
+                Main aik tajurbakaar irrigation advisor hoon jo Roman Urdu mein Pakistani kisanon ki rehnumai karta hoon.
+                Mera tajurba mitti ke science, sabziyon ki irrigation needs aur mausam ke asraat par mabni hai.
+                Main chhote kisanon ko unki faslon ke liye behtareen paani dene ka waqt samjhaata hoon
+                taa ke paani ka behtar istemaal ho.
+            """,
+
+            llm=model,
         )

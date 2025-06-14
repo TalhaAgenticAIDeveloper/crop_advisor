@@ -35,11 +35,11 @@ async def amain(TEXT):
 
     while pygame.mixer.music.get_busy():
         pygame.time.Clock().tick(10)
-    
+
     pygame.mixer.quit()
     os.remove(OUTPUT_FILE)
 
-# Soil Data
+# Soil Data Generator
 def get_soil_data():
     return {
         "moisture": round(random.uniform(15, 35), 2),
@@ -54,10 +54,8 @@ def get_soil_data():
 def get_weather_data(city: str, api_key: str):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     response = requests.get(url)
-    
     if response.status_code != 200:
         raise Exception("Weather API Error:", response.text)
-    
     data = response.json()
     return {
         "temperature": data["main"]["temp"],
@@ -73,32 +71,26 @@ def listen_speech():
         recognizer.adjust_for_ambient_noise(mic, duration=1)
         st.write("Listening... 🎤")
         audio = recognizer.listen(mic)
-
         try:
-            text = recognizer.recognize_google(audio)
-            return text
+            return recognizer.recognize_google(audio)
         except sr.UnknownValueError:
             return "Sorry, I couldn't understand that."
 
-
+# File I/O
 def save_text_to_file(text, filename="data.txt"):
-                with open(filename, "w", encoding="utf-8") as f:
-                    f.write(text)
-
-
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(text)
 
 def load_text_from_file(filename="data.txt"):
     with open(filename, "r", encoding="utf-8") as f:
         return f.read()
 
-
-
-# Streamlit App Config
+# UI
 st.set_page_config(page_title="AI Farming Assistant", layout="centered")
 st.sidebar.title("🧭 Select Tool")
-app = st.sidebar.selectbox("Choose an assistant", ["🌾 Smart Farming Advisor", "🎤 AI Crop Assistant"])
+app = st.sidebar.selectbox("Choose an assistant", ["🌾 Smart Farming Advisor", "🎤 AI Crop Assistant", "💧 Irrigation Advisory"])
 
-# ============== Page 1 ==============
+# # ============== Page 1 ==============
 if app == "🌾 Smart Farming Advisor":
     st.title("🌾 Smart Farming Advisor using AI Agents")
     city = st.text_input("Enter your city (for weather data):", "Rawalpindi")
@@ -122,7 +114,7 @@ if app == "🌾 Smart Farming Advisor":
 
             tasks = Farmer_Tasks()
             Soil_Analysis_Task = tasks.Soil_Analysis_Task(agent=soil_analysis_agent, soil_sensor_data=soil_data)
-            Weather_Analysis_Task = tasks.Weather_Analysis_Task(agent=weather_analysis_agent, weather_data=weather_data, context=[Soil_Analysis_Task])
+            Weather_Analysis_Task = tasks.Weather_Analysis_Task(agent=weather_analysis_agent, weather_data=weather_data)
             Crop_Selection_Task = tasks.Crop_Selection_Task(agent=crop_selection_agent, soil_analysis_output = Soil_Analysis_Task, weather_analysis_output =  Weather_Analysis_Task, context=[Soil_Analysis_Task, Weather_Analysis_Task])
             Advisory_Message_Task = tasks.Advisory_Message_Task(agent=advisory_agent, crop_recommendations = Crop_Selection_Task,  context=[Soil_Analysis_Task, Weather_Analysis_Task, Crop_Selection_Task])
             
@@ -142,7 +134,7 @@ if app == "🌾 Smart Farming Advisor":
             asyncio.run(amain(ai_response))
             
 
-# ============== Page 2 ==============
+# # ============== Page 2 ==============
 elif app == "🎤 AI Crop Assistant":
     st.title("🎤 AI Crop Assistant")
     # suggestedCrops = ["wheat", "maize", "sunflower"]
@@ -184,3 +176,27 @@ elif app == "🎤 AI Crop Assistant":
             st.write("AI speaking")
             # st.write(answer_passed)
             asyncio.run(amain(ai_response))
+
+# # ============== Page 3 ==============
+elif app == "💧 Irrigation Advisory":
+    st.title("💧 Irrigation Decision Support")
+    crop_name = st.text_input("Enter your crop name:")
+    city = st.text_input("Enter your city name:")
+    if st.button("Get Advisory"):
+        soil_data = get_soil_data()
+        weather_data = get_weather_data(city, openweather_api_key)
+        agents = Farmer_Agents()
+        irrigation_advisor_agent = agents.irrigation_advisor_agent()
+
+        tasks = Farmer_Tasks()
+        Irrigation_Advisor_Task = tasks.Irrigation_Advisor_Task(agent=irrigation_advisor_agent, soil_data=soil_data, weather_data = weather_data, crop_name = crop_name)
+
+
+        crew = Crew(
+            agents=[irrigation_advisor_agent],
+            tasks=[Irrigation_Advisor_Task ], 
+                        )
+        results = crew.kickoff()
+        ai_response = results.raw
+        st.success("✅ Advisory Generated!")
+        asyncio.run(amain(ai_response))
