@@ -130,7 +130,7 @@ if app == "🌾 Smart Farming Advisor":
             st.subheader("📢 Final Advisory")
             ai_response = results.raw
             save_text_to_file(ai_response)
-            st.text(ai_response)
+            # st.text(ai_response)
             asyncio.run(amain(ai_response))
             
 

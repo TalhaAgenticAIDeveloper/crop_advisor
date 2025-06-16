@@ -129,6 +129,7 @@ class Farmer_Tasks:
                     Important:
                     - Expected output mein koi symbols na ho jaise dot, bullet, ya colon.
                     - Sirf plain text ho, jaise aam baat cheet mein hota hai.
+                    - 'ga' or 'gi' in dono lafzo ka use bhi nhi krna.
 
                     Parameters:
                     - Crop Recommendations: {crop_recommendations}
@@ -141,13 +142,13 @@ class Farmer_Tasks:
             tools=[],
             agent=agent,
             expected_output="""
-                    Main ne aap ki zameen aur mausam ka jaiza lia hai. Mere tajziye ke mutabiq sab se behtareen fasal jo aap laga saktay hain wo hai bhindi. Ye fasal takreeban 60 din mein tayar ho jaye gi aur aap isay market mein achi qeemat par bech saktay hain. Bhindi ko rozana do martaba pani ki zarurat ho gi pehla pani subha fajar ke baad ya nashtay se pehle dein aur doosra pani shaam mein maghrib ke baad ya raat ke khanay se thodi der pehle dein
+                    G to kisan Bhai main ne aap ki zameen aur mausam ka jaiza lia hai. Mere hisab sy sab se behtareen fasal jo aap laga saktay hain wo hai bhindi. Ye fasal takreeban 60 din mein tayar ho jaye gi aur aap esay market mein achi qeemat par bech saktay hain. Bhindi ko rozana do martaba pani ki zarurat hoti hai pehla pani subha fajar ke baad ya nashtay se pehle dein aur doosra pani shaam mein maghrib ke baad ya raat ke khanay se thodi der pehle dein
 
-                    Dusri behtareen fasal aap ke ilaqay ke liye tamatar hai. Ye lagbhag 75 din mein ready ho jaye gi. Isay bhi roz do dafa pani chahiye subha 7 baje ke kareeb aur shaam 6 baje ke aas paas
+                    Dusri behtareen fasal aap ke ilaqay ke liye tamatar hai. Ye lagbhag 75 din mein ready ho jati hai. Esay bhi roz do dafa pani chahiye subha 7 baje ke kareeb aur shaam 6 baje ke aas paas
 
-                    Teesri fasal jo aap ke liye faidamand ho sakti hai wo hai palak. Palak 45 din mein ready ho jaye gi. Isay sirf ek martaba pani dena kaafi ho ga subha 8 baje ke kareeb pani dein
+                    Teesri fasal jo aap ke liye faydamand ho sakti hai wo hai paalak. Paalak 45 din mein ready ho jati hai. Esay sirf ek martaba pani dena kaafi ho ga subha 8 baje ke kareeb pani dein
 
-                    In teenon mein se aap kisi bhi fasal ka intekhab kar saktay hain lekin agar aap jaldi munafa chahte hain to palak ya bhindi behtareen rahein gi. InshaAllah achi paidawaar aur faida hoga
+                    In teenon mein se aap kisi bhi fasal ka intekhab kar saktay hain lekin agar aap jaldi munafa chahte hain to paalak ya bhindi behtareen hain. InshaAllah achi paidawaar aur faida hoga
                     """
         )
 
